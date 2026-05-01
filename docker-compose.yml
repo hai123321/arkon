@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # 1. API Backend (FastAPI)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkon_api
+    restart: always
+    ports:
+      - "5055:5055"
+    env_file:
+      - .env
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 5055
+
+  # 2. Background Worker (ARQ)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkon_worker
+    restart: always
+    env_file:
+      - .env
+    command: python -m arq app.worker.WorkerSettings
+    depends_on:
+      - api
+
+  # 3. Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5055}
+        INTERNAL_API_URL: http://api:5055
+    container_name: arkon_frontend
+    restart: always
+    ports:
+      - "3119:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5055}
+      - INTERNAL_API_URL=http://api:5055
+    depends_on:
+      - api
