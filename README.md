@@ -2,17 +2,17 @@
 
 # Arkon
 
-**Enterprise knowledge management for Claude - self-hosted, on-premise.**
+**Enterprise resources management for Ai Client - self-hosted, on-premise.**
 
-Arkon gives organizations centralized control over how employees use Claude. Admins manage knowledge, access policies, and workspace contexts from a single portal. Employees connect once via the Model Context Protocol (MCP) and get the right context automatically.
+Arkon gives organizations centralized control over how employees use any Ai Client. Admins manage resources, access policies, and workspace contexts from a single portal. Employees connect once via the Model Context Protocol (MCP) and get the right context automatically.
 
 ---
 
 ## The problem
 
-Most organizations adopt Claude team-by-team with no shared knowledge, inconsistent context, and no visibility into how AI is being used. Every employee manually pastes documents, repeats the same background, and gets different answers depending on what they remembered to include.
+Most organizations adopt Ai team-by-team, group-by-group with no shared resources, inconsistent context, and no visibility into how AI is being used. Every employee manually pastes documents, repeats the same background, and gets different answers depending on what they remembered to include.
 
-Arkon treats Claude as a managed organizational resource - not a public chatbot.
+Arkon treats Ai Client as a managed organizational resource - not just a personal chatbot.
 
 ---
 
