@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Design Vault — Đề xuất Second Brain cho Ngân hàng</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #fafafa;
+    --surface: #ffffff;
+    --surface-2: #f7f7f8;
+    --border: #e5e7eb;
+    --text: #111827;
+    --text-dim: #6b7280;
+    --accent: #e30613;       /* Techcombank signature red */
+    --accent-2: #b8050f;     /* Deeper red for gradient */
+    --accent-3: #ff4d5a;     /* Soft red highlight */
+    --danger: #dc2626;
+    --warn: #d97706;
+    --ok: #059669;
+    --code-bg: #1f2937;
+    --code-text: #e5e7eb;
+    --shadow: 0 4px 20px rgba(227,6,19,0.08);
+    --shadow-strong: 0 10px 40px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+    min-height: 100vh;
+  }
+  .hero {
+    background: linear-gradient(135deg, #e30613 0%, #b8050f 60%, #8a0309 100%);
+    padding: 90px 40px 70px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 15% 40%, rgba(255,255,255,0.12) 0%, transparent 50%),
+                radial-gradient(circle at 85% 60%, rgba(255,255,255,0.08) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #e30613 0%, #ff4d5a 50%, #e30613 100%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.35);
+    margin-bottom: 24px;
+    backdrop-filter: blur(6px);
+  }
+  .hero h1 {
+    font-size: clamp(30px, 4.5vw, 46px);
+    margin: 0 0 18px;
+    color: #fff;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .hero p { color: rgba(255,255,255,0.92); font-size: 18px; margin: 0; max-width: 720px; margin-inline: auto; }
+  .meta {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+  }
+  .meta span { display: flex; align-items: center; gap: 6px; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+
+  h2 {
+    font-size: 28px;
+    margin: 0 0 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text);
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(227,6,19,0.25);
+  }
+  h3 { font-size: 19px; margin: 28px 0 12px; color: var(--accent); font-weight: 600; }
+
+  p { margin: 0 0 14px; }
+
+  .tldr {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe9eb 100%);
+    border-left: 4px solid var(--accent);
+    padding: 24px 28px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .tldr strong { color: var(--accent); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--shadow); }
+  .card .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card .value { font-size: 16px; font-weight: 500; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  thead { background: linear-gradient(135deg, #fff5f5 0%, #ffe9eb 100%); }
+  th {
+    padding: 14px 18px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    vertical-align: top;
+    color: var(--text);
+  }
+  tr:hover td { background: #fafafa; }
+
+  .compare-table td:first-child { color: #6b7280; font-weight: 500; }
+  .compare-table td:last-child { color: var(--accent); font-weight: 600; }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 22px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--code-text);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  .layer-stack { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
+  .layer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .layer:hover { border-color: var(--accent); transform: translateX(4px); box-shadow: var(--shadow); }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .layer-icon {
+    font-size: 26px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(227,6,19,0.25);
+  }
+  .layer-title { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
+  .layer-subtitle { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  .layer-content { color: #4b5563; font-size: 14.5px; }
+  .layer-content ul { margin: 8px 0; padding-left: 20px; }
+  .layer-content li { margin: 4px 0; }
+
+  .arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 22px;
+    margin: -8px 0;
+    font-weight: 600;
+  }
+
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .phase:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .phase-num {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 800;
+    letter-spacing: 1.2px;
+  }
+  .phase-time { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+  .phase h4 { margin: 0 0 10px; font-size: 15px; color: var(--text); font-weight: 700; }
+  .phase ul { margin: 0; padding-left: 16px; font-size: 13px; color: #4b5563; }
+  .phase li { margin: 4px 0; }
+
+  .sev { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+  .sev-high { background: #fee2e2; color: #b91c1c; }
+  .sev-med { background: #fef3c7; color: #b45309; }
+  .sev-low { background: #d1fae5; color: #047857; }
+
+  .check { color: var(--ok); margin-right: 6px; }
+  .x { color: var(--danger); margin-right: 6px; }
+
+  .decision-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .decision-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: transform 0.15s, box-shadow 0.15s;
+    line-height: 1.55;
+  }
+  .decision-list li:hover { transform: translateX(4px); box-shadow: var(--shadow); border-left-color: var(--accent-2); }
+  .decision-list li::before {
+    content: '✓';
+    flex: 0 0 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(227,6,19,0.25);
+    margin-top: 1px;
+  }
+  .decision-list .d-body { flex: 1 1 auto; min-width: 0; }
+  .decision-list .d-title {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 15.5px;
+    font-weight: 700;
+  }
+  .decision-list .d-desc {
+    display: block;
+    color: var(--text-dim);
+    font-size: 14.5px;
+  }
+
+  .roi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .roi-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 26px 20px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .roi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .roi-card .num {
+    font-size: 34px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .roi-card .label { color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+    background: var(--surface-2);
+  }
+
+  .toc {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .toc-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 22px;
+    columns: 2;
+    column-gap: 24px;
+  }
+  .toc li { margin: 4px 0; font-size: 14px; }
+  .toc a { color: var(--text-dim); text-decoration: none; transition: color 0.15s; }
+  .toc a:hover { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .container { padding: 40px 20px; }
+    .hero { padding: 60px 20px 40px; }
+    .toc ol { columns: 1; }
+    h2 { font-size: 24px; }
+  }
+
+  @media print {
+    body { background: white; color: black; }
+    .hero { background: #e30613 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .layer, .card, .phase, table, .roi-card, .toc { box-shadow: none; }
+  }
+
+  ul li { margin: 6px 0; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="badge">PROPOSAL · v1.0</div>
+    <h1>Master Design Vault</h1>
+    <p>Hệ thống "Second Brain" cho Ngân hàng — tài liệu master tự động đồng bộ với production</p>
+    <div class="meta">
+      <span>📅 2026-05-05</span>
+      <span>👤 Hai Trieu — Solutions Architect</span>
+      <span>🧭 Brain Owner</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <nav class="toc">
+    <div class="toc-title">Mục lục</div>
+    <ol>
+      <li><a href="#tldr">Tóm tắt điều hành</a></li>
+      <li><a href="#problem">Vấn đề cần giải quyết</a></li>
+      <li><a href="#solution">Giải pháp đề xuất</a></li>
+      <li><a href="#stack">Stack công nghệ</a></li>
+      <li><a href="#roadmap">Lộ trình triển khai</a></li>
+      <li><a href="#risk">Quản trị rủi ro</a></li>
+      <li><a href="#roi">Đầu tư & ROI</a></li>
+      <li><a href="#decision">Đề xuất quyết định</a></li>
+      <li><a href="#questions">Câu hỏi mở</a></li>
+    </ol>
+  </nav>
+
+  <section id="tldr">
+    <h2><span class="num">1</span> Tóm tắt điều hành</h2>
+    <div class="tldr">
+      <p>Ngân hàng đang vận hành <strong>hàng chục hệ thống lớn</strong> (core banking, payment, lending, channels…). Tài liệu thiết kế nằm rải rác ở Confluence, Word, email, đầu các kiến trúc sư senior. <strong>Sau mỗi lần ship code lên prod, tài liệu lại lệch thêm một bước.</strong></p>
+      <p style="margin-bottom:0"><strong>Đề xuất</strong>: Xây dựng <strong>Master Design Vault</strong> — kho tài liệu tập trung, version-controlled trên <strong>GitLab</strong>, được <strong>AI tự động cập nhật</strong> sau mỗi lần triển khai prod, developer tương tác qua <strong>Kiro IDE</strong> như một "bộ não thứ hai" của tổ chức.</p>
+    </div>
+
+    <h3>Lợi ích cốt lõi</h3>
+    <table class="compare-table">
+      <thead><tr><th style="width:50%">Trước</th><th style="width:50%">Sau</th></tr></thead>
+      <tbody>
+        <tr><td>Tài liệu lệch sau 3-6 tháng</td><td>Tài liệu đồng bộ với prod trong 24 giờ</td></tr>
+        <tr><td>Onboarding 1-2 tháng</td><td>Onboarding 1-2 tuần</td></tr>
+        <tr><td>"Tribal knowledge" trong đầu 3-5 senior</td><td>Kiến thức được capture, có traceability</td></tr>
+        <tr><td>Tìm "tại sao quyết định X?" mất hàng giờ</td><td>Tìm trong 30 giây qua Kiro</td></tr>
+        <tr><td>Audit compliance phải gom tay</td><td>Git history = audit trail tự nhiên</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">Đầu tư MVP (3 tháng)</div>
+        <div class="value">~$9K tổng quy đổi <span style="color:var(--text-dim); font-size:13px;">(chỉ ~$1,500 cash mới)</span></div>
+      </div>
+      <div class="card">
+        <div class="label">Vận hành</div>
+        <div class="value">~$1,000-1,250/tháng <span style="color:var(--text-dim); font-size:13px;">(0.3 FTE + AI API)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <h2><span class="num">2</span> Vấn đề cần giải quyết</h2>
+    <h3>Pain points hiện tại</h3>
+    <svg viewBox="0 0 800 470" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:800px; display:block; margin:16px auto; background:#fafafa; border-radius:14px; border:1px solid #e5e7eb;">
+      <defs>
+        <filter id="vis1-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+        </filter>
+        <marker id="vis1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"/>
+        </marker>
+      </defs>
+      <text x="400" y="36" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="15" font-weight="700" fill="#e30613" letter-spacing="1.5">HIỆN TRẠNG · KNOWLEDGE FRAGMENTATION</text>
+
+      <!-- Top row -->
+      <g filter="url(#vis1-shadow)" font-family="sans-serif">
+        <rect x="60" y="80" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="140" y="113" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">📄 Confluence</text>
+        <rect x="320" y="80" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="400" y="113" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">✉️ Email threads</text>
+        <rect x="580" y="80" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="660" y="113" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">💬 Slack</text>
+      </g>
+
+      <!-- Middle row (sides) -->
+      <g filter="url(#vis1-shadow)" font-family="sans-serif">
+        <rect x="60" y="210" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="140" y="243" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">📝 Word docs</text>
+        <rect x="580" y="210" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="660" y="243" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">📓 Personal notes</text>
+      </g>
+
+      <!-- Center -->
+      <circle cx="400" cy="236" r="68" fill="#fff5f5" stroke="#e30613" stroke-width="2.5" stroke-dasharray="5 4"/>
+      <text x="400" y="226" text-anchor="middle" font-size="32">🧠</text>
+      <text x="400" y="256" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#e30613">Senior architect</text>
+      <text x="400" y="271" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#e30613">trong đầu</text>
+
+      <!-- Bottom row -->
+      <g filter="url(#vis1-shadow)" font-family="sans-serif">
+        <rect x="180" y="330" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="260" y="363" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">🎫 Jira tickets</text>
+        <rect x="460" y="330" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="540" y="363" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">🦊 GitLab MR</text>
+      </g>
+
+      <!-- Arrows pointing to center -->
+      <g stroke="#9ca3af" stroke-width="1.4" stroke-dasharray="4 3" fill="none">
+        <line x1="190" y1="132" x2="345" y2="200" marker-end="url(#vis1-arrow)"/>
+        <line x1="400" y1="132" x2="400" y2="170" marker-end="url(#vis1-arrow)"/>
+        <line x1="610" y1="132" x2="455" y2="200" marker-end="url(#vis1-arrow)"/>
+        <line x1="220" y1="236" x2="330" y2="236" marker-end="url(#vis1-arrow)"/>
+        <line x1="580" y1="236" x2="470" y2="236" marker-end="url(#vis1-arrow)"/>
+        <line x1="260" y1="330" x2="370" y2="290" marker-end="url(#vis1-arrow)"/>
+        <line x1="540" y1="330" x2="430" y2="290" marker-end="url(#vis1-arrow)"/>
+      </g>
+
+      <!-- Bottom warning -->
+      <rect x="80" y="410" width="640" height="44" rx="22" fill="#fff5f5" stroke="#e30613" stroke-width="1.5"/>
+      <text x="400" y="437" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="600" fill="#e30613">⚠️  Không có single source of truth — Code ship → tài liệu KHÔNG update → drift tăng dần</text>
+    </svg>
+
+    <h3>Rủi ro cụ thể trong banking</h3>
+    <ul>
+      <li><strong>Compliance</strong>: Audit yêu cầu chứng minh "code A khớp với design B" — hiện tại phải gom tay</li>
+      <li><strong>Risk khi senior nghỉ</strong>: Kiến thức về core banking integration mất theo người</li>
+      <li><strong>Incident response</strong>: Khi prod sự cố, tìm spec kiến trúc mất 30+ phút</li>
+      <li><strong>Decision drift</strong>: 6 tháng sau không ai nhớ tại sao team chọn pattern X</li>
+      <li><strong>Cross-system duplication</strong>: Team A và B cùng giải bài toán mà không biết nhau</li>
+    </ul>
+  </section>
+
+  <section id="solution">
+    <h2><span class="num">3</span> Giải pháp đề xuất — High Level Design</h2>
+
+    <h3>Bức tranh tổng thể — 4 lớp kiến trúc</h3>
+    <div class="layer-stack">
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">📥</div>
+          <div>
+            <div class="layer-title">Lớp 1 — Nguồn dữ liệu</div>
+            <div class="layer-subtitle">Sources (đã có sẵn ở bank)</div>
+          </div>
+        </div>
+        <div class="layer-content">
+          GitLab repos · Jira tickets · Confluence specs · API contracts · DB schemas · ADRs · Postmortems · CI/CD pipelines · Runbooks
+        </div>
+      </div>
+      <div class="arrow">↓ Webhooks + scheduled scan</div>
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">🧠</div>
+          <div>
+            <div class="layer-title">Lớp 2 — AI Ingestion Pipeline</div>
+            <div class="layer-subtitle">On-prem, self-host</div>
+          </div>
+        </div>
+        <div class="layer-content">
+          <ul>
+            <li>Trigger: post-deploy hook từ Change Management Process (qua GitLab CI)</li>
+            <li>Diff extractor: chỉ ingest thay đổi (không full re-scan)</li>
+            <li>Redactor: lọc PII, PCI, account numbers (regex + NER)</li>
+            <li>AI Engine: <strong>Claude trên AWS Bedrock</strong> — toàn bộ data ở lại trong VPC của bank, không egress ra Internet</li>
+            <li>Audit log mọi AI call qua AWS CloudTrail (compliance-ready)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow">↓ Tạo Merge Request (KHÔNG auto-merge)</div>
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">📚</div>
+          <div>
+            <div class="layer-title">Lớp 3 — Master Design Vault</div>
+            <div class="layer-subtitle">GitLab repo, markdown-first</div>
+          </div>
+        </div>
+        <div class="layer-content">
+<pre style="margin:0; padding:16px; font-size:12px;">master-design/
+├── _index.md                ← AI-maintained mục lục
+├── systems/
+│   ├── core-banking/        ← 1 folder / 1 hệ thống
+│   │   ├── overview.md
+│   │   ├── api-contracts.md
+│   │   ├── data-model.md
+│   │   ├── integrations.md
+│   │   └── decisions/       ← ADR tự động
+│   ├── payment-gateway/
+│   └── lending-system/
+├── cross-cutting/           ← auth, logging, security
+├── conflicts/               ← AI flag, chờ con người review
+└── .ai-instructions.md      ← "Hiến pháp" cho AI</pre>
+        </div>
+      </div>
+      <div class="arrow">↓ git pull / MR review</div>
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">💻</div>
+          <div>
+            <div class="layer-title">Lớp 4 — Tương tác (Kiro IDE)</div>
+            <div class="layer-subtitle">Developer interface</div>
+          </div>
+        </div>
+        <div class="layer-content">
+          <ul>
+            <li>Mở vault như workspace trong Kiro</li>
+            <li>Hỏi: "Hệ thống Payment gọi Core Banking thế nào?" → Kiro đọc vault, trả lời với link tới source</li>
+            <li>Steering files = .ai-instructions.md</li>
+            <li>Spec workflow: viết spec mới → Kiro tự cross-reference với existing systems để cảnh báo conflict</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3>Vòng đời tự động cập nhật</h3>
+    <svg viewBox="0 0 840 560" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:840px; display:block; margin:16px auto; background:#fafafa; border-radius:14px; border:1px solid #e5e7eb;">
+      <defs>
+        <filter id="vis2-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+        </filter>
+        <marker id="vis2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#e30613"/>
+        </marker>
+      </defs>
+
+      <text x="420" y="34" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#e30613" letter-spacing="1.2">VÒNG ĐỜI TỰ ĐỘNG CẬP NHẬT — END-TO-END ≤ 24H</text>
+
+      <!-- 5 Lane headers -->
+      <g font-family="sans-serif">
+        <rect x="40" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="110" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">👨‍💻 Developer</text>
+        <text x="110" y="98" text-anchor="middle" font-size="11" fill="#6b7280">viết code</text>
+
+        <rect x="200" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="270" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">🔄 Change Mgmt</text>
+        <text x="270" y="98" text-anchor="middle" font-size="11" fill="#6b7280">quản lý thay đổi</text>
+
+        <rect x="360" y="55" width="140" height="56" rx="10" fill="#fff5f5" stroke="#e30613" stroke-width="1.5" filter="url(#vis2-shadow)"/>
+        <text x="430" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#e30613">🧠 AI Pipeline</text>
+        <text x="430" y="98" text-anchor="middle" font-size="11" fill="#6b7280">ingest + generate</text>
+
+        <rect x="520" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="590" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">📚 Master Vault</text>
+        <text x="590" y="98" text-anchor="middle" font-size="11" fill="#6b7280">GitLab repo</text>
+
+        <rect x="680" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="750" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">🧭 Brain Owner</text>
+        <text x="750" y="98" text-anchor="middle" font-size="11" fill="#6b7280">duyệt MR</text>
+      </g>
+
+      <!-- Lifelines -->
+      <g stroke="#d1d5db" stroke-width="1" stroke-dasharray="3 4">
+        <line x1="110" y1="120" x2="110" y2="510"/>
+        <line x1="270" y1="120" x2="270" y2="510"/>
+        <line x1="430" y1="120" x2="430" y2="510"/>
+        <line x1="590" y1="120" x2="590" y2="510"/>
+        <line x1="750" y1="120" x2="750" y2="510"/>
+      </g>
+
+      <!-- Step 1 -->
+      <text x="190" y="143" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">1. MR merge</text>
+      <line x1="115" y1="155" x2="263" y2="155" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <!-- Step 2 -->
+      <text x="350" y="190" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">2. Deploy lên prod</text>
+      <line x1="275" y1="202" x2="423" y2="202" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <!-- Step 3+4 box on AI lane -->
+      <rect x="378" y="225" width="104" height="68" rx="10" fill="#e30613" filter="url(#vis2-shadow)"/>
+      <text x="430" y="248" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#fff">3. Ingest diff</text>
+      <text x="430" y="266" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#fff">4. AI generate</text>
+      <text x="430" y="282" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="500" fill="#ffd6d9">+ redact PII</text>
+
+      <!-- Step 5: AI → Vault → Lead notify -->
+      <text x="585" y="320" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">5. Tạo MR + notify Brain Owner</text>
+      <line x1="435" y1="332" x2="745" y2="332" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <!-- Step 6: Review loop -->
+      <path d="M 750 360 Q 805 380 750 400" fill="none" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+      <text x="800" y="384" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#111827">6. Review</text>
+
+      <!-- Step 7 -->
+      <text x="670" y="425" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">7. Approve / merge</text>
+      <line x1="745" y1="437" x2="597" y2="437" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <!-- Step 8 -->
+      <text x="350" y="475" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">8. Kiro pull doc mới (developer thấy ngay)</text>
+      <line x1="585" y1="487" x2="115" y2="487" stroke="#e30613" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#vis2-arrow)"/>
+
+      <!-- Bottom timer -->
+      <rect x="280" y="520" width="280" height="34" rx="17" fill="#e30613"/>
+      <text x="420" y="542" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#fff">⏱  End-to-end ≤ 24 giờ</text>
+    </svg>
+
+    <h3>Nguyên tắc thiết kế cốt lõi</h3>
+    <table>
+      <thead><tr><th>Nguyên tắc</th><th>Lý do</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Markdown + Git</strong> thay vì Confluence</td><td>Compliance, audit trail tự nhiên, Kiro làm việc tốt nhất với file system</td></tr>
+        <tr><td><strong>AI không bao giờ auto-merge</strong></td><td>Banking yêu cầu human-in-the-loop. AI chỉ đề xuất MR, Brain Owner duyệt</td></tr>
+        <tr><td><strong>Source links bắt buộc</strong></td><td>Mọi entry phải link về commit/Jira/Confluence gốc → không hallucination</td></tr>
+        <tr><td><strong>Redaction trước khi gửi AI</strong></td><td>Bảo vệ PII, PCI, customer data</td></tr>
+        <tr><td><strong>AI chạy trong VPC qua AWS Bedrock</strong></td><td>Data không egress, CloudTrail audit log, IAM-based access — phù hợp regulator</td></tr>
+        <tr><td><strong>Conflict detection, không tự sửa</strong></td><td>AI flag mâu thuẫn → con người quyết định</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="stack">
+    <h2><span class="num">4</span> Stack công nghệ</h2>
+    <table>
+      <thead><tr><th>Lớp</th><th>Công nghệ</th><th>Lý do</th></tr></thead>
+      <tbody>
+        <tr><td>Vault storage</td><td>GitLab (self-host)</td><td>Đã có sẵn, audit trail, MR review</td></tr>
+        <tr><td><strong>AI engine</strong></td><td><strong>Claude (Sonnet/Haiku) trên AWS Bedrock</strong></td><td>Data ở lại trong VPC bank, không egress — compliance-ready cho banking</td></tr>
+        <tr><td>Pipeline</td><td>AWS Lambda / ECS + GitLab CI</td><td>Cùng hạ tầng AWS với vault, IAM-based auth</td></tr>
+        <tr><td>Audit log</td><td>AWS CloudTrail + CloudWatch</td><td>Mỗi Bedrock invocation đều được log đầy đủ</td></tr>
+        <tr><td>Tương tác</td><td>Kiro IDE</td><td>Native file-system, AI-first</td></tr>
+        <tr><td>Vector search (sau MVP)</td><td>Amazon OpenSearch / pgvector trên RDS</td><td>Semantic search trên vault, native AWS</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#f0fdf4; border-left:4px solid var(--ok); padding:16px 20px; border-radius:8px; margin-top:18px; font-size:14px;">
+      <strong style="color:var(--ok);">✅ Lợi thế khi dùng AWS Bedrock:</strong> Bank đã có hạ tầng AWS sẵn, nên không cần egress proxy / DLP riêng — data stay-in-VPC mặc định.
+      Bedrock là <strong>AWS-managed service</strong>, đã có chứng nhận SOC 2, ISO 27001, PCI DSS, HIPAA-eligible. Anthropic <strong>không lưu hay train</strong> trên data của bank
+      (theo Bedrock Data Privacy Policy). Compliance không còn là blocker.
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <h2><span class="num">5</span> Lộ trình triển khai</h2>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-num">PHASE 0</div>
+        <div class="phase-time">Tuần 1-2</div>
+        <h4>Foundation</h4>
+        <ul>
+          <li>Repo skeleton</li>
+          <li>AI instructions</li>
+          <li>Bật Bedrock access</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 1</div>
+        <div class="phase-time">Tuần 3-6</div>
+        <h4>Pilot 1 hệ thống</h4>
+        <ul>
+          <li>Manual seed doc</li>
+          <li>Kiro verify</li>
+          <li>Brain Owner review</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 2</div>
+        <div class="phase-time">Tuần 7-10</div>
+        <h4>Auto-ingest</h4>
+        <ul>
+          <li>Post-deploy hook</li>
+          <li>AI tạo MR</li>
+          <li>Audit log</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 3</div>
+        <div class="phase-time">Tuần 11-14</div>
+        <h4>Mở rộng 5 hệ thống</h4>
+        <ul>
+          <li>5 systems ingested</li>
+          <li>Conflict workflow maturing</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 4</div>
+        <div class="phase-time">Tuần 15+</div>
+        <h4>Full bank + analytics</h4>
+        <ul>
+          <li>Tất cả hệ thống</li>
+          <li>Dashboard</li>
+          <li>OKR tracking</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Mốc quan trọng</h3>
+    <ul>
+      <li><span class="check">✓</span><strong>Cuối Phase 1</strong>: Pilot 1 hệ thống, dev có thể hỏi Kiro và nhận câu trả lời chính xác ≥80%</li>
+      <li><span class="check">✓</span><strong>Cuối Phase 2</strong>: Code merge → doc auto-update qua MR trong 24h</li>
+      <li><span class="check">✓</span><strong>Cuối Phase 4</strong>: Onboarding member mới giảm từ 1 tháng → 1 tuần</li>
+    </ul>
+  </section>
+
+  <section id="risk">
+    <h2><span class="num">6</span> Quản trị rủi ro</h2>
+    <table>
+      <thead><tr><th>Rủi ro</th><th>Mức độ</th><th>Biện pháp giảm thiểu</th></tr></thead>
+      <tbody>
+        <tr><td>AI hallucinate thông tin sai</td><td><span class="sev sev-high">Cao</span></td><td>Bắt buộc source links, human review MR, audit log</td></tr>
+        <tr><td>Lộ dữ liệu khách hàng qua AI</td><td><span class="sev sev-low">Thấp</span></td><td>Claude trên AWS Bedrock — data stay-in-VPC, không egress, Anthropic không lưu/train trên data. Vẫn redact PII trước để defense-in-depth</td></tr>
+        <tr><td>Vault thành "nghĩa địa tài liệu"</td><td><span class="sev sev-med">Trung</span></td><td>Tự động cập nhật, Kiro làm interaction layer hấp dẫn</td></tr>
+        <tr><td>Adoption thấp từ developer</td><td><span class="sev sev-med">Trung</span></td><td>Pilot 1 squad, không bắt buộc, để giá trị tự thuyết phục</td></tr>
+        <tr><td>Cost AI vượt budget</td><td><span class="sev sev-low">Thấp</span></td><td>Batch ingest, cache, alert ngưỡng, dùng Sonnet thay Opus</td></tr>
+        <tr><td>Conflict không được resolve</td><td><span class="sev sev-med">Trung</span></td><td>Escalation policy, dashboard tracking</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="roi">
+    <h2><span class="num">7</span> Đầu tư & ROI</h2>
+
+    <h3>Chi phí MVP — bóc tách rõ ràng</h3>
+    <p style="color:var(--text-dim); font-size:14px; margin-bottom:18px;">
+      <strong style="color:var(--accent)">Lưu ý quan trọng:</strong> Phần lớn chi phí MVP là <strong>nhân lực nội bộ đã có sẵn</strong> (không phải tiền mặt phải chi thêm).
+      Chỉ <strong>~$1,500</strong> là ngân sách thực sự cần xin mới (AI API + buffer).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Hạng mục</th>
+          <th>Tính toán</th>
+          <th>MVP (3 tháng)</th>
+          <th>Loại chi phí</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Senior engineer (VN, banking)</td>
+          <td>$2,500/tháng × 3 tháng × 1 người</td>
+          <td>~$7,500</td>
+          <td><span class="sev sev-low">Nội bộ</span></td>
+        </tr>
+        <tr>
+          <td>AI API (Claude) — dev/test</td>
+          <td>~$100/tháng × 3 tháng</td>
+          <td>~$300</td>
+          <td><span class="sev sev-high">Cash mới</span></td>
+        </tr>
+        <tr>
+          <td>Hạ tầng (GitLab self-host)</td>
+          <td>Đã có sẵn</td>
+          <td>$0</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Buffer 15% (tools nhỏ, training)</td>
+          <td>Phát sinh</td>
+          <td>~$1,200</td>
+          <td><span class="sev sev-high">Cash mới</span></td>
+        </tr>
+        <tr style="background:#fff5f5;">
+          <td><strong>Tổng quy đổi</strong></td>
+          <td>—</td>
+          <td><strong style="color:var(--accent); font-size:17px;">~$9,000</strong></td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:24px;">
+      <div class="card" style="border-left:4px solid var(--ok); background:#f0fdf4;">
+        <div class="label" style="color:var(--ok)">✓ ALLOCATE NỘI BỘ</div>
+        <div class="value" style="font-size:22px; font-weight:700; color:var(--text); margin-top:6px;">~$7,500</div>
+        <div style="font-size:13px; color:var(--text-dim); margin-top:6px;">
+          1 senior engineer × 3 tháng. Đây là <strong>opportunity cost</strong> — bank đã trả lương rồi, chỉ cần allocate người làm dự án này thay vì việc khác.
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent); background:#fff5f5;">
+        <div class="label" style="color:var(--accent)">$ CẦN XIN NGÂN SÁCH MỚI</div>
+        <div class="value" style="font-size:22px; font-weight:700; color:var(--text); margin-top:6px;">~$1,500</div>
+        <div style="font-size:13px; color:var(--text-dim); margin-top:6px;">
+          AI API ($300) + buffer ($1,200). Đây là tiền mặt thực sự phải duyệt mới — con số rất nhỏ so với scope dự án.
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px;">Chi phí vận hành (sau MVP)</h3>
+    <table>
+      <thead><tr><th>Hạng mục</th><th>/tháng</th><th>Ghi chú</th></tr></thead>
+      <tbody>
+        <tr><td>Senior engineer (part-time)</td><td>~$750</td><td>0.3 FTE × $2,500 — duy trì + cải tiến</td></tr>
+        <tr><td>AI API (Claude) — production</td><td>$200-500</td><td>Tuỳ volume ingest, dùng Sonnet</td></tr>
+        <tr><td>Hạ tầng</td><td>$0</td><td>GitLab self-host đã có</td></tr>
+        <tr style="background:#fff5f5;"><td><strong>Tổng vận hành</strong></td><td><strong style="color:var(--accent)">~$1,000-1,250/tháng</strong></td><td>~$12-15K/năm</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">So sánh với phương án outsource</h3>
+    <table>
+      <thead><tr><th>Phương án</th><th>MVP cost</th><th>Đánh giá</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Internal team (đề xuất)</strong></td><td><strong style="color:var(--ok)">~$9K</strong></td><td>Build know-how nội bộ, kiểm soát IP</td></tr>
+        <tr><td>Outsource vendor (VN)</td><td>~$25-35K</td><td>Vendor markup 3-4×, phụ thuộc đối tác</td></tr>
+        <tr><td>Vendor nước ngoài</td><td>~$60-100K</td><td>Đắt nhất, không hiểu context banking VN</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">💰 Tiết kiệm — bóc tách chi tiết theo công thức</h3>
+    <p style="color:var(--text-dim); font-size:14px;">
+      Giả định: team <strong>50 developers</strong>, lương trung bình fully-loaded <strong>$12/giờ</strong> (mid-senior VN banking),
+      <strong>15 hires/năm</strong>, <strong>4 audit/năm</strong>, <strong>10 incidents lớn/năm</strong>.
+      Số liệu <strong>conservative</strong> (giả định adoption 60%, không tính lợi ích vô hình).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Hạng mục tiết kiệm</th>
+          <th>Công thức</th>
+          <th>Tiết kiệm/năm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Onboarding nhanh hơn</strong><br><span style="color:var(--text-dim); font-size:13px;">30 ngày → 7 ngày = 23 ngày tiết kiệm/dev mới</span></td>
+          <td>15 hires × 23 ngày × 8h × $12/h</td>
+          <td><strong style="color:var(--accent)">$33,120</strong></td>
+        </tr>
+        <tr>
+          <td><strong>2. Giảm thời gian search/research</strong><br><span style="color:var(--text-dim); font-size:13px;">5h/tuần → 1h/tuần = 4h/dev/tuần tiết kiệm</span></td>
+          <td>30 dev (60% adoption) × 4h × 50 tuần × $12/h</td>
+          <td><strong style="color:var(--accent)">$72,000</strong></td>
+        </tr>
+        <tr>
+          <td><strong>3. Audit prep nhanh hơn</strong><br><span style="color:var(--text-dim); font-size:13px;">2 tuần × 3 người → 2 ngày × 1 người</span></td>
+          <td>(240h - 16h) × 4 audit × $15/h</td>
+          <td><strong style="color:var(--accent)">$13,440</strong></td>
+        </tr>
+        <tr>
+          <td><strong>4. Incident MTTR giảm 15%</strong><br><span style="color:var(--text-dim); font-size:13px;">Tìm spec kiến trúc nhanh hơn khi sự cố</span></td>
+          <td>10 incidents × $5,000/incident × 15%</td>
+          <td><strong style="color:var(--accent)">$7,500</strong></td>
+        </tr>
+        <tr>
+          <td><strong>5. "Insurance" khi senior nghỉ</strong><br><span style="color:var(--text-dim); font-size:13px;">Giảm 50% chi phí knowledge transfer</span></td>
+          <td>1-2 senior/năm × ~$10K transfer cost × 50%</td>
+          <td><strong style="color:var(--accent)">$10,000</strong></td>
+        </tr>
+        <tr style="background:#fff5f5;">
+          <td colspan="2"><strong style="font-size:16px;">Tổng tiết kiệm có thể đo lường (conservative)</strong></td>
+          <td><strong style="color:var(--accent); font-size:20px;">~$136,000/năm</strong></td>
+        </tr>
+        <tr style="background:#fefce8;">
+          <td colspan="2" style="color:var(--text-dim);">Aggressive (sau 12 tháng full adoption + 50 dev × 4h × $14/h)</td>
+          <td style="color:#a16207; font-weight:700;">~$240,000/năm</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">📊 ROI 3 năm — kịch bản conservative</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Năm</th>
+          <th>Chi phí</th>
+          <th>Tiết kiệm</th>
+          <th>Net</th>
+          <th>Cumulative</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Năm 1</strong> <span style="color:var(--text-dim); font-size:12px;">(MVP + ramp 50%)</span></td>
+          <td>$9K MVP + $14K ops = <strong>$23K</strong></td>
+          <td><strong>$68K</strong> <span style="color:var(--text-dim); font-size:12px;">(50% ramp)</span></td>
+          <td style="color:var(--ok); font-weight:700;">+$45K</td>
+          <td style="color:var(--ok); font-weight:700;">+$45K</td>
+        </tr>
+        <tr>
+          <td><strong>Năm 2</strong> <span style="color:var(--text-dim); font-size:12px;">(steady state)</span></td>
+          <td><strong>$14K</strong></td>
+          <td><strong>$136K</strong></td>
+          <td style="color:var(--ok); font-weight:700;">+$122K</td>
+          <td style="color:var(--ok); font-weight:700;">+$167K</td>
+        </tr>
+        <tr>
+          <td><strong>Năm 3</strong> <span style="color:var(--text-dim); font-size:12px;">(maturity)</span></td>
+          <td><strong>$14K</strong></td>
+          <td><strong>$180K</strong> <span style="color:var(--text-dim); font-size:12px;">(adoption tăng)</span></td>
+          <td style="color:var(--ok); font-weight:700;">+$166K</td>
+          <td style="color:var(--ok); font-weight:700;">+$333K</td>
+        </tr>
+        <tr style="background:#fff5f5;">
+          <td><strong>Tổng 3 năm</strong></td>
+          <td><strong>$51K</strong></td>
+          <td><strong style="color:var(--accent); font-size:17px;">$384K</strong></td>
+          <td colspan="2" style="color:var(--accent); font-weight:700; font-size:17px;">Net ROI: +$333K (~6.5×)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">🎯 Lợi ích định lượng — tóm tắt</h3>
+    <div class="roi-grid">
+      <div class="roi-card">
+        <div class="num">$136K</div>
+        <div class="label">Tiết kiệm/năm<br>(conservative, steady state)</div>
+      </div>
+      <div class="roi-card">
+        <div class="num">~2 tháng</div>
+        <div class="label">Payback period<br>(thực tế nhanh hơn ước tính ban đầu)</div>
+      </div>
+      <div class="roi-card">
+        <div class="num">6.5×</div>
+        <div class="label">ROI sau 3 năm<br>($333K net trên $51K cost)</div>
+      </div>
+      <div class="roi-card">
+        <div class="num">$384K</div>
+        <div class="label">Tổng savings 3 năm<br>(tích luỹ)</div>
+      </div>
+    </div>
+
+    <p style="background:#f0fdf4; border-left:4px solid var(--ok); padding:16px 20px; border-radius:8px; margin-top:24px; font-size:14px;">
+      <strong style="color:var(--ok);">💡 Lợi ích vô hình (chưa tính tiền):</strong>
+      Compliance dễ hơn (audit trail tự nhiên qua Git) · Giảm rủi ro vận hành khi sự cố · Quyết định kiến trúc có traceability ·
+      Bank xây dựng được năng lực AI nội bộ làm bàn đạp cho dự án sau · Tăng employer brand cho việc tuyển dev senior.
+    </p>
+  </section>
+
+  <section id="decision">
+    <h2><span class="num">8</span> Đề xuất quyết định</h2>
+    <h3>Xin phê duyệt</h3>
+    <ul class="decision-list">
+      <li>
+        <div class="d-body">
+          <span class="d-title">Phase 0 + Phase 1 — pilot 6 tuần</span>
+          <span class="d-desc">Triển khai pilot 1 hệ thống không phải core banking để validate value, làm foundation cho rollout rộng hơn.</span>
+        </div>
+      </li>
+      <li>
+        <div class="d-body">
+          <span class="d-title">Budget MVP — chỉ ~$9K tổng</span>
+          <span class="d-desc">Allocate 1 senior × 3 tháng (~$7,500 nội bộ, không cần cash mới) + <strong>~$1,500 ngân sách thực sự cần xin</strong> cho AI API + buffer.</span>
+        </div>
+      </li>
+      <li>
+        <div class="d-body">
+          <span class="d-title">Bật quyền truy cập AWS Bedrock (Claude models)</span>
+          <span class="d-desc">Security/Cloud team enable Bedrock model access trong AWS account của bank — chỉ mất <strong>1-2 ngày</strong>, không cần Legal review vì data ở lại trong VPC.</span>
+        </div>
+      </li>
+      <li>
+        <div class="d-body">
+          <span class="d-title">Pilot system — chọn 1 hệ thống cụ thể</span>
+          <span class="d-desc">Đề xuất chọn hệ thống có documentation kém nhất nhưng <strong>blast radius thấp</strong> (không phải core banking, không xử lý giao dịch realtime).</span>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Quyết định tiếp theo (sau Phase 1)</h3>
+    <ul>
+      <li>Mở rộng sang 5 hệ thống tiếp theo</li>
+      <li>Quyết định model: Claude Sonnet (chất lượng) vs Haiku (rẻ hơn 5×) cho từng loại tác vụ</li>
+      <li>Tích hợp Jira + Confluence để richer context</li>
+    </ul>
+  </section>
+
+  <section id="questions">
+    <h2><span class="num">9</span> Câu hỏi mở cho lãnh đạo</h2>
+    <ol>
+      <li><strong>AWS region</strong>: Dùng Bedrock ở region nào (ap-southeast-1 Singapore / us-east-1)? Cân nhắc data residency và độ trễ.</li>
+      <li><strong>Pilot system</strong>: Lãnh đạo muốn chọn hệ thống nào để pilot?</li>
+      <li><strong>Brain Owner</strong>: Ai sẽ đảm nhiệm vai trò Brain Owner — người duyệt và sở hữu chất lượng các MR từ AI?</li>
+      <li><strong>Timeline</strong>: Kỳ vọng go-live MVP trong Q3/2026 có khả thi không?</li>
+    </ol>
+  </section>
+
+</div>
+
+<footer>
+  Đề xuất xây dựng trên pattern Karpathy "LLM Wiki" — điều chỉnh cho ngữ cảnh banking với compliance, audit và human-in-the-loop là ưu tiên cao nhất.
+</footer>
+
+</body>
+</html>
