@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Design Vault — A "Second Brain" Proposal for the Bank</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #fafafa;
+    --surface: #ffffff;
+    --surface-2: #f7f7f8;
+    --border: #e5e7eb;
+    --text: #111827;
+    --text-dim: #6b7280;
+    --accent: #e30613;       /* Techcombank signature red */
+    --accent-2: #b8050f;     /* Deeper red for gradient */
+    --accent-3: #ff4d5a;     /* Soft red highlight */
+    --danger: #dc2626;
+    --warn: #d97706;
+    --ok: #059669;
+    --code-bg: #1f2937;
+    --code-text: #e5e7eb;
+    --shadow: 0 4px 20px rgba(227,6,19,0.08);
+    --shadow-strong: 0 10px 40px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+    min-height: 100vh;
+  }
+  .hero {
+    background: linear-gradient(135deg, #e30613 0%, #b8050f 60%, #8a0309 100%);
+    padding: 90px 40px 70px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 15% 40%, rgba(255,255,255,0.12) 0%, transparent 50%),
+                radial-gradient(circle at 85% 60%, rgba(255,255,255,0.08) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #e30613 0%, #ff4d5a 50%, #e30613 100%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.35);
+    margin-bottom: 24px;
+    backdrop-filter: blur(6px);
+  }
+  .hero h1 {
+    font-size: clamp(30px, 4.5vw, 46px);
+    margin: 0 0 18px;
+    color: #fff;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .hero p { color: rgba(255,255,255,0.92); font-size: 18px; margin: 0; max-width: 720px; margin-inline: auto; }
+  .meta {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+  }
+  .meta span { display: flex; align-items: center; gap: 6px; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+
+  h2 {
+    font-size: 28px;
+    margin: 0 0 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text);
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(227,6,19,0.25);
+  }
+  h3 { font-size: 19px; margin: 28px 0 12px; color: var(--accent); font-weight: 600; }
+
+  p { margin: 0 0 14px; }
+
+  .tldr {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe9eb 100%);
+    border-left: 4px solid var(--accent);
+    padding: 24px 28px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .tldr strong { color: var(--accent); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--shadow); }
+  .card .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card .value { font-size: 16px; font-weight: 500; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  thead { background: linear-gradient(135deg, #fff5f5 0%, #ffe9eb 100%); }
+  th {
+    padding: 14px 18px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    vertical-align: top;
+    color: var(--text);
+  }
+  tr:hover td { background: #fafafa; }
+
+  .compare-table td:first-child { color: #6b7280; font-weight: 500; }
+  .compare-table td:last-child { color: var(--accent); font-weight: 600; }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 22px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--code-text);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  .layer-stack { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
+  .layer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .layer:hover { border-color: var(--accent); transform: translateX(4px); box-shadow: var(--shadow); }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .layer-icon {
+    font-size: 26px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(227,6,19,0.25);
+  }
+  .layer-title { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
+  .layer-subtitle { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  .layer-content { color: #4b5563; font-size: 14.5px; }
+  .layer-content ul { margin: 8px 0; padding-left: 20px; }
+  .layer-content li { margin: 4px 0; }
+
+  .arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 22px;
+    margin: -8px 0;
+    font-weight: 600;
+  }
+
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .phase:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .phase-num {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 800;
+    letter-spacing: 1.2px;
+  }
+  .phase-time { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+  .phase h4 { margin: 0 0 10px; font-size: 15px; color: var(--text); font-weight: 700; }
+  .phase ul { margin: 0; padding-left: 16px; font-size: 13px; color: #4b5563; }
+  .phase li { margin: 4px 0; }
+
+  .sev { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+  .sev-high { background: #fee2e2; color: #b91c1c; }
+  .sev-med { background: #fef3c7; color: #b45309; }
+  .sev-low { background: #d1fae5; color: #047857; }
+
+  .check { color: var(--ok); margin-right: 6px; }
+  .x { color: var(--danger); margin-right: 6px; }
+
+  .decision-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .decision-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: transform 0.15s, box-shadow 0.15s;
+    line-height: 1.55;
+  }
+  .decision-list li:hover { transform: translateX(4px); box-shadow: var(--shadow); border-left-color: var(--accent-2); }
+  .decision-list li::before {
+    content: '✓';
+    flex: 0 0 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(227,6,19,0.25);
+    margin-top: 1px;
+  }
+  .decision-list .d-body { flex: 1 1 auto; min-width: 0; }
+  .decision-list .d-title {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 15.5px;
+    font-weight: 700;
+  }
+  .decision-list .d-desc {
+    display: block;
+    color: var(--text-dim);
+    font-size: 14.5px;
+  }
+
+  .roi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .roi-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 26px 20px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .roi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .roi-card .num {
+    font-size: 34px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .roi-card .label { color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+    background: var(--surface-2);
+  }
+
+  .toc {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .toc-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 22px;
+    columns: 2;
+    column-gap: 24px;
+  }
+  .toc li { margin: 4px 0; font-size: 14px; }
+  .toc a { color: var(--text-dim); text-decoration: none; transition: color 0.15s; }
+  .toc a:hover { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .container { padding: 40px 20px; }
+    .hero { padding: 60px 20px 40px; }
+    .toc ol { columns: 1; }
+    h2 { font-size: 24px; }
+  }
+
+  @media print {
+    body { background: white; color: black; }
+    .hero { background: #e30613 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .layer, .card, .phase, table, .roi-card, .toc { box-shadow: none; }
+  }
+
+  ul li { margin: 6px 0; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="badge">PROPOSAL · v1.0</div>
+    <h1>Master Design Vault</h1>
+    <p>A "Second Brain" for the Bank — master documentation auto-synced with production</p>
+    <div class="meta">
+      <span>📅 2026-05-05</span>
+      <span>👤 Hai Trieu — Solutions Architect</span>
+      <span>🧭 Brain Owner</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <nav class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ol>
+      <li><a href="#tldr">Executive Summary</a></li>
+      <li><a href="#problem">Problem Statement</a></li>
+      <li><a href="#solution">Proposed Solution</a></li>
+      <li><a href="#stack">Technology Stack</a></li>
+      <li><a href="#roadmap">Implementation Roadmap</a></li>
+      <li><a href="#risk">Risk Management</a></li>
+      <li><a href="#roi">Investment & ROI</a></li>
+      <li><a href="#decision">Decision Requested</a></li>
+      <li><a href="#questions">Open Questions</a></li>
+    </ol>
+  </nav>
+
+  <section id="tldr">
+    <h2><span class="num">1</span> Executive Summary</h2>
+    <div class="tldr">
+      <p>The bank operates <strong>dozens of large systems</strong> (core banking, payments, lending, channels…). Design documentation is scattered across Confluence, Word, email, and the heads of senior architects. <strong>Every production deployment widens the gap between code and documentation.</strong></p>
+      <p style="margin-bottom:0"><strong>Proposal</strong>: Build a <strong>Master Design Vault</strong> — a centralized, version-controlled documentation repository on <strong>GitLab</strong>, <strong>automatically updated by AI</strong> after each production deployment, with developers interacting through <strong>Kiro IDE</strong> as the organization's "second brain".</p>
+    </div>
+
+    <h3>Core benefits</h3>
+    <table class="compare-table">
+      <thead><tr><th style="width:50%">Before</th><th style="width:50%">After</th></tr></thead>
+      <tbody>
+        <tr><td>Docs drift after 3-6 months</td><td>Docs in sync with prod within 24 hours</td></tr>
+        <tr><td>Onboarding takes 1-2 months</td><td>Onboarding takes 1-2 weeks</td></tr>
+        <tr><td>Tribal knowledge in 3-5 senior heads</td><td>Knowledge captured with full traceability</td></tr>
+        <tr><td>Hours to find "why decision X?"</td><td>30 seconds via Kiro</td></tr>
+        <tr><td>Audit/compliance prep is manual</td><td>Git history = native audit trail</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">MVP Investment (3 months)</div>
+        <div class="value">~$9K total <span style="color:var(--text-dim); font-size:13px;">(only ~$1,500 fresh cash)</span></div>
+      </div>
+      <div class="card">
+        <div class="label">Operational</div>
+        <div class="value">~$1,000-1,250/month <span style="color:var(--text-dim); font-size:13px;">(0.3 FTE + AI API)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <h2><span class="num">2</span> Problem Statement</h2>
+    <h3>Current pain points</h3>
+    <svg viewBox="0 0 800 470" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:800px; display:block; margin:16px auto; background:#fafafa; border-radius:14px; border:1px solid #e5e7eb;">
+      <defs>
+        <filter id="vis1-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+        </filter>
+        <marker id="vis1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"/>
+        </marker>
+      </defs>
+      <text x="400" y="36" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="15" font-weight="700" fill="#e30613" letter-spacing="1.5">TODAY · KNOWLEDGE FRAGMENTATION</text>
+
+      <g filter="url(#vis1-shadow)" font-family="sans-serif">
+        <rect x="60" y="80" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="140" y="113" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">📄 Confluence</text>
+        <rect x="320" y="80" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="400" y="113" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">✉️ Email threads</text>
+        <rect x="580" y="80" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="660" y="113" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">💬 Slack</text>
+      </g>
+
+      <g filter="url(#vis1-shadow)" font-family="sans-serif">
+        <rect x="60" y="210" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="140" y="243" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">📝 Word docs</text>
+        <rect x="580" y="210" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="660" y="243" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">📓 Personal notes</text>
+      </g>
+
+      <circle cx="400" cy="236" r="68" fill="#fff5f5" stroke="#e30613" stroke-width="2.5" stroke-dasharray="5 4"/>
+      <text x="400" y="226" text-anchor="middle" font-size="32">🧠</text>
+      <text x="400" y="256" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#e30613">Senior architect</text>
+      <text x="400" y="271" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#e30613">(in head)</text>
+
+      <g filter="url(#vis1-shadow)" font-family="sans-serif">
+        <rect x="180" y="330" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="260" y="363" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">🎫 Jira tickets</text>
+        <rect x="460" y="330" width="160" height="52" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="540" y="363" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">🦊 GitLab MR</text>
+      </g>
+
+      <g stroke="#9ca3af" stroke-width="1.4" stroke-dasharray="4 3" fill="none">
+        <line x1="190" y1="132" x2="345" y2="200" marker-end="url(#vis1-arrow)"/>
+        <line x1="400" y1="132" x2="400" y2="170" marker-end="url(#vis1-arrow)"/>
+        <line x1="610" y1="132" x2="455" y2="200" marker-end="url(#vis1-arrow)"/>
+        <line x1="220" y1="236" x2="330" y2="236" marker-end="url(#vis1-arrow)"/>
+        <line x1="580" y1="236" x2="470" y2="236" marker-end="url(#vis1-arrow)"/>
+        <line x1="260" y1="330" x2="370" y2="290" marker-end="url(#vis1-arrow)"/>
+        <line x1="540" y1="330" x2="430" y2="290" marker-end="url(#vis1-arrow)"/>
+      </g>
+
+      <rect x="80" y="410" width="640" height="44" rx="22" fill="#fff5f5" stroke="#e30613" stroke-width="1.5"/>
+      <text x="400" y="437" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="600" fill="#e30613">⚠️  No single source of truth — Code ships → docs do NOT update → drift compounds</text>
+    </svg>
+
+    <h3>Banking-specific risks</h3>
+    <ul>
+      <li><strong>Compliance</strong>: Audits require proving "code A matches design B" — currently a manual scramble</li>
+      <li><strong>Senior departure risk</strong>: Knowledge of core banking integration walks out the door</li>
+      <li><strong>Incident response</strong>: Locating architecture specs during a prod incident takes 30+ minutes</li>
+      <li><strong>Decision drift</strong>: 6 months later, no one remembers why pattern X was chosen</li>
+      <li><strong>Cross-system duplication</strong>: Teams A and B solve the same problem unaware of each other</li>
+    </ul>
+  </section>
+
+  <section id="solution">
+    <h2><span class="num">3</span> Proposed Solution — High Level Design</h2>
+
+    <h3>The big picture — 4-layer architecture</h3>
+    <div class="layer-stack">
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">📥</div>
+          <div>
+            <div class="layer-title">Layer 1 — Data Sources</div>
+            <div class="layer-subtitle">Already exist in the bank</div>
+          </div>
+        </div>
+        <div class="layer-content">
+          GitLab repos · Jira tickets · Confluence specs · API contracts · DB schemas · ADRs · Postmortems · CI/CD pipelines · Runbooks
+        </div>
+      </div>
+      <div class="arrow">↓ Webhooks + scheduled scan</div>
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">🧠</div>
+          <div>
+            <div class="layer-title">Layer 2 — AI Ingestion Pipeline</div>
+            <div class="layer-subtitle">On-prem, self-hosted</div>
+          </div>
+        </div>
+        <div class="layer-content">
+          <ul>
+            <li>Trigger: post-deploy hook from Change Management Process (via GitLab CI)</li>
+            <li>Diff extractor: only ingest changes (no full re-scan)</li>
+            <li>Redactor: strip PII, PCI, account numbers (regex + NER)</li>
+            <li>AI Engine: <strong>Claude on AWS Bedrock</strong> — all data stays inside the bank's VPC, no internet egress</li>
+            <li>Audit log every AI call via AWS CloudTrail (compliance-ready)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow">↓ Create Merge Request (NO auto-merge)</div>
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">📚</div>
+          <div>
+            <div class="layer-title">Layer 3 — Master Design Vault</div>
+            <div class="layer-subtitle">GitLab repo, markdown-first</div>
+          </div>
+        </div>
+        <div class="layer-content">
+<pre style="margin:0; padding:16px; font-size:12px;">master-design/
+├── _index.md                ← AI-maintained TOC
+├── systems/
+│   ├── core-banking/        ← 1 folder per system
+│   │   ├── overview.md
+│   │   ├── api-contracts.md
+│   │   ├── data-model.md
+│   │   ├── integrations.md
+│   │   └── decisions/       ← auto-generated ADRs
+│   ├── payment-gateway/
+│   └── lending-system/
+├── cross-cutting/           ← auth, logging, security
+├── conflicts/               ← AI-flagged, awaiting review
+└── .ai-instructions.md      ← AI "constitution"</pre>
+        </div>
+      </div>
+      <div class="arrow">↓ git pull / MR review</div>
+      <div class="layer">
+        <div class="layer-header">
+          <div class="layer-icon">💻</div>
+          <div>
+            <div class="layer-title">Layer 4 — Interaction (Kiro IDE)</div>
+            <div class="layer-subtitle">Developer interface</div>
+          </div>
+        </div>
+        <div class="layer-content">
+          <ul>
+            <li>Open vault as a workspace in Kiro</li>
+            <li>Ask: "How does Payment call Core Banking?" → Kiro reads the vault, answers with source links</li>
+            <li>Steering files = .ai-instructions.md</li>
+            <li>Spec workflow: write a new spec → Kiro auto cross-references existing systems and warns of conflicts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3>The auto-update lifecycle</h3>
+    <svg viewBox="0 0 840 560" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:840px; display:block; margin:16px auto; background:#fafafa; border-radius:14px; border:1px solid #e5e7eb;">
+      <defs>
+        <filter id="vis2-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+        </filter>
+        <marker id="vis2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#e30613"/>
+        </marker>
+      </defs>
+
+      <text x="420" y="34" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#e30613" letter-spacing="1.2">AUTO-UPDATE LIFECYCLE — END-TO-END ≤ 24H</text>
+
+      <g font-family="sans-serif">
+        <rect x="40" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="110" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">👨‍💻 Developer</text>
+        <text x="110" y="98" text-anchor="middle" font-size="11" fill="#6b7280">writes code</text>
+
+        <rect x="200" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="270" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">🔄 Change Mgmt</text>
+        <text x="270" y="98" text-anchor="middle" font-size="11" fill="#6b7280">change process</text>
+
+        <rect x="360" y="55" width="140" height="56" rx="10" fill="#fff5f5" stroke="#e30613" stroke-width="1.5" filter="url(#vis2-shadow)"/>
+        <text x="430" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#e30613">🧠 AI Pipeline</text>
+        <text x="430" y="98" text-anchor="middle" font-size="11" fill="#6b7280">ingest + generate</text>
+
+        <rect x="520" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="590" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">📚 Master Vault</text>
+        <text x="590" y="98" text-anchor="middle" font-size="11" fill="#6b7280">GitLab repo</text>
+
+        <rect x="680" y="55" width="140" height="56" rx="10" fill="#fff" stroke="#e5e7eb" filter="url(#vis2-shadow)"/>
+        <text x="750" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">🧭 Brain Owner</text>
+        <text x="750" y="98" text-anchor="middle" font-size="11" fill="#6b7280">approves MR</text>
+      </g>
+
+      <g stroke="#d1d5db" stroke-width="1" stroke-dasharray="3 4">
+        <line x1="110" y1="120" x2="110" y2="510"/>
+        <line x1="270" y1="120" x2="270" y2="510"/>
+        <line x1="430" y1="120" x2="430" y2="510"/>
+        <line x1="590" y1="120" x2="590" y2="510"/>
+        <line x1="750" y1="120" x2="750" y2="510"/>
+      </g>
+
+      <text x="190" y="143" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">1. MR merge</text>
+      <line x1="115" y1="155" x2="263" y2="155" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <text x="350" y="190" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">2. Deploy to prod</text>
+      <line x1="275" y1="202" x2="423" y2="202" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <rect x="378" y="225" width="104" height="68" rx="10" fill="#e30613" filter="url(#vis2-shadow)"/>
+      <text x="430" y="248" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#fff">3. Ingest diff</text>
+      <text x="430" y="266" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#fff">4. AI generate</text>
+      <text x="430" y="282" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="500" fill="#ffd6d9">+ redact PII</text>
+
+      <text x="585" y="320" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">5. Create MR + notify Brain Owner</text>
+      <line x1="435" y1="332" x2="745" y2="332" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <path d="M 750 360 Q 805 380 750 400" fill="none" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+      <text x="800" y="384" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#111827">6. Review</text>
+
+      <text x="670" y="425" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">7. Approve / merge</text>
+      <line x1="745" y1="437" x2="597" y2="437" stroke="#e30613" stroke-width="2" marker-end="url(#vis2-arrow)"/>
+
+      <text x="350" y="475" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#111827">8. Kiro pulls new doc (developer sees it)</text>
+      <line x1="585" y1="487" x2="115" y2="487" stroke="#e30613" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#vis2-arrow)"/>
+
+      <rect x="280" y="520" width="280" height="34" rx="17" fill="#e30613"/>
+      <text x="420" y="542" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#fff">⏱  End-to-end ≤ 24 hours</text>
+    </svg>
+
+    <h3>Core design principles</h3>
+    <table>
+      <thead><tr><th>Principle</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Markdown + Git</strong> instead of Confluence</td><td>Compliance, native audit trail, Kiro works best with file systems</td></tr>
+        <tr><td><strong>AI never auto-merges</strong></td><td>Banking requires human-in-the-loop. AI only proposes MRs; Brain Owner approves</td></tr>
+        <tr><td><strong>Source links are mandatory</strong></td><td>Every entry must link back to original commit/Jira/Confluence → no hallucinations</td></tr>
+        <tr><td><strong>Redaction before AI</strong></td><td>Protects PII, PCI, customer data</td></tr>
+        <tr><td><strong>AI runs in-VPC via AWS Bedrock</strong></td><td>No data egress, CloudTrail audit logs, IAM-based access — regulator-friendly</td></tr>
+        <tr><td><strong>Conflict detection, not auto-fix</strong></td><td>AI flags conflicts → humans decide</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="stack">
+    <h2><span class="num">4</span> Technology Stack</h2>
+    <table>
+      <thead><tr><th>Layer</th><th>Technology</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Vault storage</td><td>GitLab (self-hosted)</td><td>Already in place, audit trail, MR review</td></tr>
+        <tr><td><strong>AI engine</strong></td><td><strong>Claude (Sonnet/Haiku) on AWS Bedrock</strong></td><td>Data stays in the bank's VPC, no egress — compliance-ready for banking</td></tr>
+        <tr><td>Pipeline</td><td>AWS Lambda / ECS + GitLab CI</td><td>Same AWS infrastructure as the vault, IAM-based auth</td></tr>
+        <tr><td>Audit log</td><td>AWS CloudTrail + CloudWatch</td><td>Every Bedrock invocation is fully logged</td></tr>
+        <tr><td>Interaction</td><td>Kiro IDE</td><td>File-system native, AI-first</td></tr>
+        <tr><td>Vector search (post-MVP)</td><td>Amazon OpenSearch / pgvector on RDS</td><td>Semantic search over the vault, AWS-native</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#f0fdf4; border-left:4px solid var(--ok); padding:16px 20px; border-radius:8px; margin-top:18px; font-size:14px;">
+      <strong style="color:var(--ok);">✅ Why AWS Bedrock wins:</strong> The bank already runs on AWS, so no separate egress proxy / DLP layer is needed — data stays in-VPC by default.
+      Bedrock is an <strong>AWS-managed service</strong> with SOC 2, ISO 27001, PCI DSS, and HIPAA-eligible attestations. Anthropic <strong>does not store or train</strong> on the bank's data
+      (per Bedrock Data Privacy Policy). Compliance is no longer a blocker.
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <h2><span class="num">5</span> Implementation Roadmap</h2>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-num">PHASE 0</div>
+        <div class="phase-time">Week 1-2</div>
+        <h4>Foundation</h4>
+        <ul>
+          <li>Repo skeleton</li>
+          <li>AI instructions</li>
+          <li>Enable Bedrock access</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 1</div>
+        <div class="phase-time">Week 3-6</div>
+        <h4>Pilot 1 system</h4>
+        <ul>
+          <li>Manual seed docs</li>
+          <li>Kiro verify</li>
+          <li>Brain Owner review</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 2</div>
+        <div class="phase-time">Week 7-10</div>
+        <h4>Auto-ingest</h4>
+        <ul>
+          <li>Post-deploy hook</li>
+          <li>AI opens MR</li>
+          <li>Audit log</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 3</div>
+        <div class="phase-time">Week 11-14</div>
+        <h4>Expand to 5 systems</h4>
+        <ul>
+          <li>5 systems ingested</li>
+          <li>Conflict workflow maturing</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 4</div>
+        <div class="phase-time">Week 15+</div>
+        <h4>Full bank + analytics</h4>
+        <ul>
+          <li>All systems</li>
+          <li>Dashboard</li>
+          <li>OKR tracking</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Key milestones</h3>
+    <ul>
+      <li><span class="check">✓</span><strong>End of Phase 1</strong>: 1 system piloted, Kiro answers ≥80% of dev questions accurately</li>
+      <li><span class="check">✓</span><strong>End of Phase 2</strong>: Code merge → docs auto-updated via MR within 24h</li>
+      <li><span class="check">✓</span><strong>End of Phase 4</strong>: New-hire onboarding shrinks from 1 month → 1 week</li>
+    </ul>
+  </section>
+
+  <section id="risk">
+    <h2><span class="num">6</span> Risk Management</h2>
+    <table>
+      <thead><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>AI hallucinates incorrect info</td><td><span class="sev sev-high">High</span></td><td>Mandatory source links, human MR review, audit logs</td></tr>
+        <tr><td>Customer data leakage via AI</td><td><span class="sev sev-low">Low</span></td><td>Claude on AWS Bedrock — data stays in-VPC, no egress, Anthropic doesn't store/train on data. Still redact PII as defense-in-depth</td></tr>
+        <tr><td>Vault becomes a "documentation graveyard"</td><td><span class="sev sev-med">Medium</span></td><td>Auto-updates, Kiro as compelling interaction layer</td></tr>
+        <tr><td>Low developer adoption</td><td><span class="sev sev-med">Medium</span></td><td>Pilot one squad, optional, let value drive uptake</td></tr>
+        <tr><td>AI cost overruns</td><td><span class="sev sev-low">Low</span></td><td>Batch ingest, caching, threshold alerts, Sonnet over Opus</td></tr>
+        <tr><td>Conflicts left unresolved</td><td><span class="sev sev-med">Medium</span></td><td>Escalation policy, dashboard tracking</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="roi">
+    <h2><span class="num">7</span> Investment & ROI</h2>
+
+    <h3>MVP cost — clear breakdown</h3>
+    <p style="color:var(--text-dim); font-size:14px; margin-bottom:18px;">
+      <strong style="color:var(--accent)">Important:</strong> Most of the MVP cost is <strong>internal headcount already on payroll</strong> (not new cash outlay).
+      Only <strong>~$1,500</strong> is fresh budget that needs new approval (AI API + buffer).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Calculation</th>
+          <th>MVP (3 months)</th>
+          <th>Cost type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Senior engineer (Vietnam, banking)</td>
+          <td>$2,500/month × 3 months × 1 person</td>
+          <td>~$7,500</td>
+          <td><span class="sev sev-low">Internal</span></td>
+        </tr>
+        <tr>
+          <td>AI API (Claude) — dev/test</td>
+          <td>~$100/month × 3 months</td>
+          <td>~$300</td>
+          <td><span class="sev sev-high">New cash</span></td>
+        </tr>
+        <tr>
+          <td>Infrastructure (GitLab self-host)</td>
+          <td>Already in place</td>
+          <td>$0</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Buffer 15% (small tools, training)</td>
+          <td>Contingency</td>
+          <td>~$1,200</td>
+          <td><span class="sev sev-high">New cash</span></td>
+        </tr>
+        <tr style="background:#fff5f5;">
+          <td><strong>Total (equivalent value)</strong></td>
+          <td>—</td>
+          <td><strong style="color:var(--accent); font-size:17px;">~$9,000</strong></td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:24px;">
+      <div class="card" style="border-left:4px solid var(--ok); background:#f0fdf4;">
+        <div class="label" style="color:var(--ok)">✓ INTERNAL ALLOCATION</div>
+        <div class="value" style="font-size:22px; font-weight:700; color:var(--text); margin-top:6px;">~$7,500</div>
+        <div style="font-size:13px; color:var(--text-dim); margin-top:6px;">
+          1 senior engineer × 3 months. This is <strong>opportunity cost</strong> — the bank already pays this salary; we just allocate them to this project instead of others.
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent); background:#fff5f5;">
+        <div class="label" style="color:var(--accent)">$ NEW BUDGET REQUIRED</div>
+        <div class="value" style="font-size:22px; font-weight:700; color:var(--text); margin-top:6px;">~$1,500</div>
+        <div style="font-size:13px; color:var(--text-dim); margin-top:6px;">
+          AI API ($300) + buffer ($1,200). This is the actual fresh cash that needs approval — a very small number for the project's scope.
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px;">Operational cost (post-MVP)</h3>
+    <table>
+      <thead><tr><th>Item</th><th>/month</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Senior engineer (part-time)</td><td>~$750</td><td>0.3 FTE × $2,500 — maintenance + improvements</td></tr>
+        <tr><td>AI API (Claude) — production</td><td>$200-500</td><td>Depends on ingest volume, use Sonnet</td></tr>
+        <tr><td>Infrastructure</td><td>$0</td><td>GitLab self-host already in place</td></tr>
+        <tr style="background:#fff5f5;"><td><strong>Total operational</strong></td><td><strong style="color:var(--accent)">~$1,000-1,250/month</strong></td><td>~$12-15K/year</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">Comparison vs outsourcing</h3>
+    <table>
+      <thead><tr><th>Option</th><th>MVP cost</th><th>Assessment</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Internal team (proposed)</strong></td><td><strong style="color:var(--ok)">~$9K</strong></td><td>Builds in-house know-how, IP control</td></tr>
+        <tr><td>Outsource vendor (Vietnam)</td><td>~$25-35K</td><td>3-4× vendor markup, partner-dependent</td></tr>
+        <tr><td>Foreign vendor</td><td>~$60-100K</td><td>Most expensive, lacks VN banking context</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">💰 Savings — detailed breakdown by formula</h3>
+    <p style="color:var(--text-dim); font-size:14px;">
+      Assumptions: <strong>50 developers</strong>, fully-loaded average rate <strong>$12/hour</strong> (mid-senior VN banking),
+      <strong>15 hires/year</strong>, <strong>4 audits/year</strong>, <strong>10 major incidents/year</strong>.
+      Numbers are <strong>conservative</strong> (60% adoption, intangible benefits not counted).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Savings category</th>
+          <th>Formula</th>
+          <th>Saved/year</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Faster onboarding</strong><br><span style="color:var(--text-dim); font-size:13px;">30 days → 7 days = 23 days saved/new hire</span></td>
+          <td>15 hires × 23 days × 8h × $12/h</td>
+          <td><strong style="color:var(--accent)">$33,120</strong></td>
+        </tr>
+        <tr>
+          <td><strong>2. Reduced search/research time</strong><br><span style="color:var(--text-dim); font-size:13px;">5h/week → 1h/week = 4h saved/dev/week</span></td>
+          <td>30 devs (60% adoption) × 4h × 50 weeks × $12/h</td>
+          <td><strong style="color:var(--accent)">$72,000</strong></td>
+        </tr>
+        <tr>
+          <td><strong>3. Faster audit prep</strong><br><span style="color:var(--text-dim); font-size:13px;">2 weeks × 3 people → 2 days × 1 person</span></td>
+          <td>(240h - 16h) × 4 audits × $15/h</td>
+          <td><strong style="color:var(--accent)">$13,440</strong></td>
+        </tr>
+        <tr>
+          <td><strong>4. Incident MTTR -15%</strong><br><span style="color:var(--text-dim); font-size:13px;">Faster spec lookup during incidents</span></td>
+          <td>10 incidents × $5,000/incident × 15%</td>
+          <td><strong style="color:var(--accent)">$7,500</strong></td>
+        </tr>
+        <tr>
+          <td><strong>5. "Insurance" against senior departure</strong><br><span style="color:var(--text-dim); font-size:13px;">50% reduction in knowledge transfer cost</span></td>
+          <td>1-2 seniors/year × ~$10K transfer cost × 50%</td>
+          <td><strong style="color:var(--accent)">$10,000</strong></td>
+        </tr>
+        <tr style="background:#fff5f5;">
+          <td colspan="2"><strong style="font-size:16px;">Total quantifiable savings (conservative)</strong></td>
+          <td><strong style="color:var(--accent); font-size:20px;">~$136,000/year</strong></td>
+        </tr>
+        <tr style="background:#fefce8;">
+          <td colspan="2" style="color:var(--text-dim);">Aggressive (after 12 months full adoption + 50 devs × 4h × $14/h)</td>
+          <td style="color:#a16207; font-weight:700;">~$240,000/year</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">📊 3-year ROI — conservative scenario</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Cost</th>
+          <th>Savings</th>
+          <th>Net</th>
+          <th>Cumulative</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Year 1</strong> <span style="color:var(--text-dim); font-size:12px;">(MVP + 50% ramp)</span></td>
+          <td>$9K MVP + $14K ops = <strong>$23K</strong></td>
+          <td><strong>$68K</strong> <span style="color:var(--text-dim); font-size:12px;">(50% ramp)</span></td>
+          <td style="color:var(--ok); font-weight:700;">+$45K</td>
+          <td style="color:var(--ok); font-weight:700;">+$45K</td>
+        </tr>
+        <tr>
+          <td><strong>Year 2</strong> <span style="color:var(--text-dim); font-size:12px;">(steady state)</span></td>
+          <td><strong>$14K</strong></td>
+          <td><strong>$136K</strong></td>
+          <td style="color:var(--ok); font-weight:700;">+$122K</td>
+          <td style="color:var(--ok); font-weight:700;">+$167K</td>
+        </tr>
+        <tr>
+          <td><strong>Year 3</strong> <span style="color:var(--text-dim); font-size:12px;">(maturity)</span></td>
+          <td><strong>$14K</strong></td>
+          <td><strong>$180K</strong> <span style="color:var(--text-dim); font-size:12px;">(adoption grows)</span></td>
+          <td style="color:var(--ok); font-weight:700;">+$166K</td>
+          <td style="color:var(--ok); font-weight:700;">+$333K</td>
+        </tr>
+        <tr style="background:#fff5f5;">
+          <td><strong>3-year total</strong></td>
+          <td><strong>$51K</strong></td>
+          <td><strong style="color:var(--accent); font-size:17px;">$384K</strong></td>
+          <td colspan="2" style="color:var(--accent); font-weight:700; font-size:17px;">Net ROI: +$333K (~6.5×)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:32px;">🎯 Quantified benefits — summary</h3>
+    <div class="roi-grid">
+      <div class="roi-card">
+        <div class="num">$136K</div>
+        <div class="label">Saved per year<br>(conservative, steady state)</div>
+      </div>
+      <div class="roi-card">
+        <div class="num">~2 months</div>
+        <div class="label">Payback period<br>(faster than initial estimate)</div>
+      </div>
+      <div class="roi-card">
+        <div class="num">6.5×</div>
+        <div class="label">3-year ROI<br>($333K net on $51K cost)</div>
+      </div>
+      <div class="roi-card">
+        <div class="num">$384K</div>
+        <div class="label">Total 3-year savings<br>(cumulative)</div>
+      </div>
+    </div>
+
+    <p style="background:#f0fdf4; border-left:4px solid var(--ok); padding:16px 20px; border-radius:8px; margin-top:24px; font-size:14px;">
+      <strong style="color:var(--ok);">💡 Intangible benefits (not counted in $):</strong>
+      Easier compliance (Git audit trail) · Reduced operational risk during incidents · Architecture decisions gain traceability ·
+      Bank builds in-house AI capability that becomes a foundation for future projects · Stronger employer brand for senior engineering hires.
+    </p>
+  </section>
+
+  <section id="decision">
+    <h2><span class="num">8</span> Decision Requested</h2>
+    <h3>Approval requested for</h3>
+    <ul class="decision-list">
+      <li>
+        <div class="d-body">
+          <span class="d-title">Phase 0 + Phase 1 — 6-week pilot</span>
+          <span class="d-desc">Roll out a pilot on one non-core-banking system to validate value and build the foundation for wider rollout.</span>
+        </div>
+      </li>
+      <li>
+        <div class="d-body">
+          <span class="d-title">MVP budget — only ~$9K total</span>
+          <span class="d-desc">Allocate 1 senior × 3 months (~$7,500 internal, no fresh cash needed) + <strong>~$1,500 actual new budget</strong> for AI API + buffer.</span>
+        </div>
+      </li>
+      <li>
+        <div class="d-body">
+          <span class="d-title">Enable AWS Bedrock (Claude models)</span>
+          <span class="d-desc">Security/Cloud team enables Bedrock model access in the bank's AWS account — takes only <strong>1-2 days</strong>, no Legal review required since data stays in-VPC.</span>
+        </div>
+      </li>
+      <li>
+        <div class="d-body">
+          <span class="d-title">Pilot selection — pick one specific system</span>
+          <span class="d-desc">Recommend a system with the worst documentation but <strong>low blast radius</strong> (not core banking, not handling realtime transactions).</span>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Subsequent decisions (post-Phase 1)</h3>
+    <ul>
+      <li>Expand to the next 5 systems</li>
+      <li>Pick model tier: Claude Sonnet (quality) vs Haiku (5× cheaper) per task type</li>
+      <li>Integrate Jira + Confluence for richer context</li>
+    </ul>
+  </section>
+
+  <section id="questions">
+    <h2><span class="num">9</span> Open Questions for Leadership</h2>
+    <ol>
+      <li><strong>AWS region</strong>: Which Bedrock region to use (ap-southeast-1 Singapore / us-east-1)? Trade-off between data residency and latency.</li>
+      <li><strong>Pilot system</strong>: Which system would leadership choose for the pilot?</li>
+      <li><strong>Brain Owner</strong>: Who will own the Brain Owner role — the person who approves and is accountable for AI-generated MR quality?</li>
+      <li><strong>Timeline</strong>: Is a Q3/2026 MVP go-live realistic given other priorities?</li>
+    </ol>
+  </section>
+
+</div>
+
+<footer>
+  This proposal is built on Karpathy's "LLM Wiki" pattern — adapted for a banking context where compliance, auditability, and human-in-the-loop oversight are top priorities.
+</footer>
+
+</body>
+</html>
